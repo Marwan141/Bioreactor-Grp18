@@ -3,6 +3,7 @@
 #include "wifi_passwd.h"
 #include "thingsboard_consts.h"
 #include "my_pass.h" // comment this out for yourself, or create this file with your own password for #define EAP_PASSWORD
+#include "my_token.h" // comment this out for yourself, or create this file with your own thingsboard token for #define TOKEN
 #include "esp_wpa2.h" //wpa2 library for connections to Enterprise networks
 
 int status = WL_IDLE_STATUS; // the Wifi radio's status

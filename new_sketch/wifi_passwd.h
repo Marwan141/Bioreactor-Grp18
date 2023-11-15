@@ -1,2 +1,2 @@
-#define EAP_IDENTITY "smth@ucl.ac.uk"
-#define EAP_PASSWORD "your passwd"
+#define EAP_IDENTITY "zcabraw@ucl.ac.uk"
+// #define EAP_PASSWORD "password"

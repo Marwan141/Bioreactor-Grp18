@@ -1,12 +1,9 @@
 #include <WiFi.h> // WiFi control for ESP32
 #include <ThingsBoard.h> // ThingsBoard SDK
 #include "wifi_passwd.h"
-
+#include "thingsboard_consts.h"
+#include "my_pass.h" // comment this out for yourself, or create this file with your own password for #define EAP_PASSWORD
 #include "esp_wpa2.h" //wpa2 library for connections to Enterprise networks
-
-// See https://thingsboard.io/docs/getting-started-guides/helloworld/
-#define TOKEN "your thingsboard token"
-#define THINGSBOARD_SERVER "demo.thingsboard.io"
 
 int status = WL_IDLE_STATUS; // the Wifi radio's status
 static uint16_t messageCounter = 0; // count values sent

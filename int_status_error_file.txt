@@ -1,0 +1,58 @@
+In file included from C:\Users\prati\Bioreactor-Grp18\new_sketch\new_sketch.ino:2:
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:40:41: error: 'enable_if' in namespace 'ArduinoJson' does not name a template type
+       typename = ARDUINOJSON_NAMESPACE::enable_if<ARDUINOJSON_NAMESPACE::is_integral<T>::value>
+                                         ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:40:50: error: expected '>' before '<' token
+       typename = ARDUINOJSON_NAMESPACE::enable_if<ARDUINOJSON_NAMESPACE::is_integral<T>::value>
+                                                  ^
+C:\Users\prati\Bioreactor-Grp18\new_sketch\new_sketch.ino:13:5: error: redefinition of 'int status'
+ int status = WL_IDLE_STATUS; // the Wifi radio's status
+     ^~~~~~
+C:\Users\prati\Bioreactor-Grp18\new_sketch\new_sketch.ino:9:5: note: 'int status' previously defined here
+ int status = WL_IDLE_STATUS; // the Wifi radio's status
+     ^~~~~~
+In file included from C:\Users\prati\Bioreactor-Grp18\new_sketch\new_sketch.ino:2:
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h: In instantiation of 'bool ThingsBoard::sendKeyval(const char*, T, bool) [with T = int]':
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:153:33:   required from here
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:229:15: error: call of overloaded 'Telemetry(const char*&, int&)' is ambiguous
+     Telemetry t(key, value);
+               ^
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:56:10: note: candidate: 'Telemetry::Telemetry(const char*, float)'
+   inline Telemetry(const char *key, float val)
+          ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:52:10: note: candidate: 'Telemetry::Telemetry(const char*, bool)'
+   inline Telemetry(const char *key, bool val)
+          ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:233:17: error: call of overloaded 'Telemetry(const char*&, int&)' is ambiguous
+       Telemetry t(key, value);
+                 ^
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:56:10: note: candidate: 'Telemetry::Telemetry(const char*, float)'
+   inline Telemetry(const char *key, float val)
+          ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:52:10: note: candidate: 'Telemetry::Telemetry(const char*, bool)'
+   inline Telemetry(const char *key, bool val)
+          ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h: In instantiation of 'bool ThingsBoardHttp::sendKeyval(const char*, T, bool) [with T = int]':
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:293:33:   required from here
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:401:15: error: call of overloaded 'Telemetry(const char*&, int&)' is ambiguous
+     Telemetry t(key, value);
+               ^
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:56:10: note: candidate: 'Telemetry::Telemetry(const char*, float)'
+   inline Telemetry(const char *key, float val)
+          ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:52:10: note: candidate: 'Telemetry::Telemetry(const char*, bool)'
+   inline Telemetry(const char *key, bool val)
+          ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:405:17: error: call of overloaded 'Telemetry(const char*&, int&)' is ambiguous
+       Telemetry t(key, value);
+                 ^
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:56:10: note: candidate: 'Telemetry::Telemetry(const char*, float)'
+   inline Telemetry(const char *key, float val)
+          ^~~~~~~~~
+c:\Users\prati\Documents\Arduino\libraries\ThingsBoard\src/ThingsBoard.h:52:10: note: candidate: 'Telemetry::Telemetry(const char*, bool)'
+   inline Telemetry(const char *key, bool val)
+          ^~~~~~~~~
+
+exit status 1
+
+Compilation error: redefinition of 'int status'

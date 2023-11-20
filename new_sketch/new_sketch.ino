@@ -10,7 +10,6 @@ int status = WL_IDLE_STATUS; // the Wifi radio's status
 static uint16_t messageCounter = 0; // count values sent
 const char* ssid = "eduroam";
 WiFiClient espClient; // Initialize ThingsBoard client
-int status = WL_IDLE_STATUS; // the Wifi radio's status
 ThingsBoard tb(espClient); // Initialize ThingsBoard instance
 
 void connectWifi() {

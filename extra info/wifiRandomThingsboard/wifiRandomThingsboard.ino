@@ -8,8 +8,8 @@
 
 // WiFi
 //
-#define WIFI_AP_NAME        "Your AP name here"
-#define WIFI_PASSWORD       "Your wifi password here"
+#define WIFI_AP_NAME        "Raghavs-iPhone"
+#define WIFI_PASSWORD       "Raghav123"
 
 
 // Helper macro to calculate array size
@@ -19,8 +19,8 @@
 //
 
 
-#define TOKEN               "Your device token here"
-#define THINGSBOARD_SERVER  "demo.thingsboard.io"
+#define TOKEN               "rcnig1c5ekp8xk2oq5zi"
+#define THINGSBOARD_SERVER  "thingsboard.cloud"
 
 WiFiClient espClient;           // Initialize ThingsBoard client
 ThingsBoard tb(espClient);      // Initialize ThingsBoard instance

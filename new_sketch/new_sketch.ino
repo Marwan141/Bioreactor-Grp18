@@ -72,8 +72,10 @@ void loop() {
   // Uploads new telemetry to ThingsBoard using MQTT.
   // See https://thingsboard.io/docs/reference/mqtt-api/#telemetry-upload-api
   // for more details
+  int x = 50;
   tb.sendTelemetryInt("count", messageCounter);
   tb.sendTelemetryFloat("randomVal", r);
+  tb.sendTelemetryInt("temperature", x);
   // Process messages
   tb.loop();
 }

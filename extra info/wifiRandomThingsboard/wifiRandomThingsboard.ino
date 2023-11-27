@@ -35,8 +35,7 @@ bool subscribed = false;        // Set to true if application is subscribed for 
 // Processes function for RPC call "setValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
-RPC_Response processDelayChange(const RPC_Data &data)
-{
+RPC_Response processDelayChange(const RPC_Data &data) {
   Serial.println("Received the set delay RPC method");
 
   // Process data
@@ -51,8 +50,7 @@ RPC_Response processDelayChange(const RPC_Data &data)
 // Processes function for RPC call "getValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
-RPC_Response processGetDelay(const RPC_Data &data)
-{
+RPC_Response processGetDelay(const RPC_Data &data) {
   Serial.println("Received the get value method");
 
   return RPC_Response(NULL, updateDelay);
@@ -65,8 +63,7 @@ RPC_Callback callbacks[] = {
 };
 
 
-void InitWiFi()
-{
+void InitWiFi() {
   Serial.println("Connecting to AP ...");
   // attempt to connect to WiFi network
 
@@ -120,10 +117,10 @@ void loop() {
     subscribed = false;
 
     // Connect to the ThingsBoard
-    Serial.print("Connecting to: ");
-    Serial.print(THINGSBOARD_SERVER);
-    Serial.print(" with token ");
-    Serial.println(TOKEN);
+    // Serial.print("Connecting to: ");
+    // Serial.print(THINGSBOARD_SERVER);
+    // Serial.print(" with token ");
+    // Serial.println(TOKEN);
     if (!tb.connect(THINGSBOARD_SERVER, TOKEN)) {
       Serial.println("Failed to connect");
       return;
@@ -132,7 +129,7 @@ void loop() {
 
   // Subscribe for RPC, if needed
   if (!subscribed) {
-    Serial.println("Subscribing for RPC...");
+    // Serial.println("Subscribing for RPC...");
 
     // Perform a subscription. All consequent data processing will happen in
     // callbacks as denoted by callbacks[] array.
@@ -141,7 +138,7 @@ void loop() {
       return;
     }
 
-    Serial.println("Subscribe done");
+    // Serial.println("Subscribe done");
     subscribed = true;
   }
 
@@ -149,10 +146,10 @@ void loop() {
     r = (float)random(1000)/1000.0;
     loopCounter++;
 
-    Serial.print("Sending data...[");  
-    Serial.print(loopCounter);
-    Serial.print("]: ");
-    Serial.println(r);
+    // Serial.print("Sending data...[");  
+    // Serial.print(loopCounter);
+    // Serial.print("]: ");
+    // Serial.println(r);
     
     // Uploads new telemetry to ThingsBoard using MQTT. 
     // See https://thingsboard.io/docs/reference/mqtt-api/#telemetry-upload-api 
@@ -164,6 +161,6 @@ void loop() {
   }
 
   // Process messages
-  tb.loop();   
+  tb.loop();
 
 }

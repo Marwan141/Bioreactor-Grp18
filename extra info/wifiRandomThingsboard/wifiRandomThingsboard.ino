@@ -27,7 +27,7 @@ ThingsBoard tb(espClient);      // Initialize ThingsBoard instance
 int status = WL_IDLE_STATUS;    // the Wifi radio's status
 
 int quant = 1;                  // Main application loop delay
-int updateDelay = 10000;        // Initial update delay.
+int updateDelay = 100;        // Initial update delay.
 int lastUpdate  = 0;            // Time of last update.
 bool subscribed = false;        // Set to true if application is subscribed for the RPC messages.
 
@@ -35,13 +35,42 @@ bool subscribed = false;        // Set to true if application is subscribed for 
 // Processes function for RPC call "setValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
-RPC_Response processDelayChange(const RPC_Data &data) {
-  Serial.println("Received the set delay RPC method");
+RPC_Response set_pH(const RPC_Data &data) {
+  Serial.print("set pH: ");
 
   // Process data
   updateDelay = data;
 
-  Serial.print("Set new delay: ");
+  // Serial.print("Set new delay: ");
+  Serial.println(updateDelay);
+  int big = (int) updateDelay / 10;
+  int small = (int) updateDelay % 10;
+
+  Serial.println(big);
+  Serial.println(small);
+
+  return RPC_Response(NULL, updateDelay);
+}
+
+// Processes function for RPC call "getValue"
+// RPC_Data is a JSON variant, that can be queried using operator[]
+// See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
+RPC_Response get_pH(const RPC_Data &data) {
+  Serial.println("get pH");
+
+  return RPC_Response(NULL, updateDelay);
+}
+
+// Processes function for RPC call "setValue"
+// RPC_Data is a JSON variant, that can be queried using operator[]
+// See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
+RPC_Response set_Temp(const RPC_Data &data) {
+  Serial.print("set Temp: ");
+
+  // Process data
+  updateDelay = data;
+
+  // Serial.print("Set new delay: ");
   Serial.println(updateDelay);
 
   return RPC_Response(NULL, updateDelay);
@@ -50,16 +79,45 @@ RPC_Response processDelayChange(const RPC_Data &data) {
 // Processes function for RPC call "getValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
-RPC_Response processGetDelay(const RPC_Data &data) {
-  Serial.println("Received the get value method");
+RPC_Response get_Temp(const RPC_Data &data) {
+  Serial.println("get Temp");
 
   return RPC_Response(NULL, updateDelay);
 }
 
+// Processes function for RPC call "setValue"
+// RPC_Data is a JSON variant, that can be queried using operator[]
+// See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
+RPC_Response set_RPM(const RPC_Data &data) {
+  Serial.print("set RPM: ");
+
+  // Process data
+  updateDelay = data;
+
+  // Serial.print("Set new delay: ");
+  Serial.println(updateDelay);
+
+  return RPC_Response(NULL, updateDelay);
+}
+
+// Processes function for RPC call "getValue"
+// RPC_Data is a JSON variant, that can be queried using operator[]
+// See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
+RPC_Response get_RPM(const RPC_Data &data) {
+  Serial.println("get RPM");
+
+  return RPC_Response(NULL, updateDelay);
+}
+
+
 // RPC handlers
 RPC_Callback callbacks[] = {
-  { "getValue",         processGetDelay },
-  { "setValue",         processDelayChange },
+  { "getpHValue",         get_pH},
+  { "setpHValue",         set_pH},
+  { "getTempValue",         get_Temp},
+  { "setTempValue",         set_Temp},
+  { "getRPMValue",         get_RPM},
+  { "setRPMValue",         set_RPM},
 };
 
 
@@ -142,23 +200,23 @@ void loop() {
     subscribed = true;
   }
 
-  // if (now > lastUpdate + updateDelay) {
-  //   r = (float)random(1000)/1000.0;
-  //   loopCounter++;
+  if (now > lastUpdate + updateDelay) {
+    r = (float)random(1000)/1000.0;
+    loopCounter++;
 
-  //   // Serial.print("Sending data...[");  
-  //   // Serial.print(loopCounter);
-  //   // Serial.print("]: ");
-  //   // Serial.println(r);
+    // Serial.print("Sending data...[");  
+    // Serial.print(loopCounter);
+    // Serial.print("]: ");
+    // Serial.println(r);
     
-  //   // Uploads new telemetry to ThingsBoard using MQTT. 
-  //   // See https://thingsboard.io/docs/reference/mqtt-api/#telemetry-upload-api 
-  //   // for more details
-  //   tb.sendTelemetryInt("count", loopCounter);    
-  //   tb.sendTelemetryFloat("randomVal", r);
+    // Uploads new telemetry to ThingsBoard using MQTT. 
+    // See https://thingsboard.io/docs/reference/mqtt-api/#telemetry-upload-api 
+    // for more details
+    tb.sendTelemetryInt("count", loopCounter);    
+    tb.sendTelemetryFloat("randomVal", r);
     
-  //   lastUpdate += updateDelay;
-  // }
+    lastUpdate += updateDelay;
+  }
 
   // Process messages
   tb.loop();

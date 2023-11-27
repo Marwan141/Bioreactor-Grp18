@@ -123,9 +123,9 @@ void loop() {
     // Serial.println(TOKEN);
     if (!tb.connect(THINGSBOARD_SERVER, TOKEN)) {
       Serial.println("Failed to connect");
-      return;
+      // return;
     }
-  }  
+  }
 
   // Subscribe for RPC, if needed
   if (!subscribed) {
@@ -135,30 +135,30 @@ void loop() {
     // callbacks as denoted by callbacks[] array.
     if (!tb.RPC_Subscribe(callbacks, COUNT_OF(callbacks))) {
       Serial.println("Failed to subscribe for RPC");
-      return;
+      // return;
     }
 
     // Serial.println("Subscribe done");
     subscribed = true;
   }
 
-  if (now > lastUpdate + updateDelay) {
-    r = (float)random(1000)/1000.0;
-    loopCounter++;
+  // if (now > lastUpdate + updateDelay) {
+  //   r = (float)random(1000)/1000.0;
+  //   loopCounter++;
 
-    // Serial.print("Sending data...[");  
-    // Serial.print(loopCounter);
-    // Serial.print("]: ");
-    // Serial.println(r);
+  //   // Serial.print("Sending data...[");  
+  //   // Serial.print(loopCounter);
+  //   // Serial.print("]: ");
+  //   // Serial.println(r);
     
-    // Uploads new telemetry to ThingsBoard using MQTT. 
-    // See https://thingsboard.io/docs/reference/mqtt-api/#telemetry-upload-api 
-    // for more details
-    tb.sendTelemetryInt("count", loopCounter);    
-    tb.sendTelemetryFloat("randomVal", r);
+  //   // Uploads new telemetry to ThingsBoard using MQTT. 
+  //   // See https://thingsboard.io/docs/reference/mqtt-api/#telemetry-upload-api 
+  //   // for more details
+  //   tb.sendTelemetryInt("count", loopCounter);    
+  //   tb.sendTelemetryFloat("randomVal", r);
     
-    lastUpdate += updateDelay;
-  }
+  //   lastUpdate += updateDelay;
+  // }
 
   // Process messages
   tb.loop();

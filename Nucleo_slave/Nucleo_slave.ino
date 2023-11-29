@@ -2,6 +2,7 @@
 
 #define SLAVE_ADDR 9
 
+int my_delay = 1000;
 
 void setup() {
   //Serial.begin(9600);
@@ -10,10 +11,12 @@ void setup() {
 }
 
 void loop() {
- 
-  delay(100);
+  delay(my_delay);
+  Wire.onRequest(requestEvent); // register event
 }
 
 void requestEvent() {
-  Wire.write("hello "); // respond with message
+  // Wire.write("T 257 "); // respond with message
+  // Wire.write("P 57  ");
+  Wire.write("R 1125");
 }

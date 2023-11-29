@@ -4,6 +4,7 @@
 #define SLAVE_ADDR 9
 #define I2C_SDA 21
 #define I2C_SCL 22
+#define MASTER_ADDR 10
 
 int my_delay = 1000;
 
@@ -11,10 +12,6 @@ void setup() {
   Serial.begin(9600);
   Wire.begin(I2C_SDA, I2C_SCL);
 }
-
-// T/R/P xx.x
-//       xxxx
-//       xx
 
 void loop() {
   

@@ -31,6 +31,9 @@ int updateDelay = 100;        // Initial update delay.
 int lastUpdate  = 0;            // Time of last update.
 bool subscribed = false;        // Set to true if application is subscribed for the RPC messages.
 
+float temperature = 27.5;
+float pH = 5;
+int RPM = 750;
 
 // Processes function for RPC call "setValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
@@ -42,12 +45,17 @@ RPC_Response set_pH(const RPC_Data &data) {
   updateDelay = data;
 
   // Serial.print("Set new delay: ");
-  Serial.println(updateDelay);
+  // Serial.println(updateDelay);
   int big = (int) updateDelay / 10;
   int small = (int) updateDelay % 10;
 
-  Serial.println(big);
-  Serial.println(small);
+  Serial.print(big);
+  Serial.print('.');
+  Serial.print(small);
+
+  Serial.println(' ');
+
+  pH = big + (small * 0.1);
 
   return RPC_Response(NULL, updateDelay);
 }
@@ -71,7 +79,17 @@ RPC_Response set_Temp(const RPC_Data &data) {
   updateDelay = data;
 
   // Serial.print("Set new delay: ");
-  Serial.println(updateDelay);
+  // Serial.println(updateDelay);
+  int big = (int) updateDelay / 10;
+  int small = (int) updateDelay % 10;
+
+  Serial.print(big);
+  Serial.print('.');
+  Serial.print(small);
+
+  Serial.println(' ');
+
+  temperature = big + (small * 0.1);
 
   return RPC_Response(NULL, updateDelay);
 }
@@ -94,8 +112,12 @@ RPC_Response set_RPM(const RPC_Data &data) {
   // Process data
   updateDelay = data;
 
+  RPM = updateDelay;
+
   // Serial.print("Set new delay: ");
-  Serial.println(updateDelay);
+  Serial.print(updateDelay);
+
+  Serial.println(' ');
 
   return RPC_Response(NULL, updateDelay);
 }
@@ -201,20 +223,26 @@ void loop() {
   }
 
   if (now > lastUpdate + updateDelay) {
-    r = (float)random(1000)/1000.0;
-    loopCounter++;
+    // r = (float)random(1000)/1000.0;
+    // loopCounter++;
 
     // Serial.print("Sending data...[");  
     // Serial.print(loopCounter);
     // Serial.print("]: ");
     // Serial.println(r);
+
+    // temperature += 10.1;
+    // pH += 0.1;
+    // RPM += 10;
     
     // Uploads new telemetry to ThingsBoard using MQTT. 
     // See https://thingsboard.io/docs/reference/mqtt-api/#telemetry-upload-api 
     // for more details
-    tb.sendTelemetryInt("count", loopCounter);    
-    tb.sendTelemetryFloat("randomVal", r);
-    
+    // tb.sendTelemetryInt("count", loopCounter);    
+    // tb.sendTelemetryFloat("randomVal", r);
+    tb.sendTelemetryFloat("temperature", temperature);
+    tb.sendTelemetryFloat("pH", pH);
+    tb.sendTelemetryInt("RPM", RPM);
     lastUpdate += updateDelay;
   }
 

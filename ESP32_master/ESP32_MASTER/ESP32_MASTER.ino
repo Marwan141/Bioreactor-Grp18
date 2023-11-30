@@ -86,7 +86,7 @@ void loop() {
   }
 
   Wire.beginTransmission(SLAVE_ADDR);
-  Wire.write("hello!");
+  Wire.write("T 257 ");
   Wire.endTransmission();
 
   delay(my_delay);

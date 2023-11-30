@@ -9,8 +9,8 @@
 
 // WiFi
 //
-#define WIFI_AP_NAME        "Raghavs-iPhone"
-#define WIFI_PASSWORD       "Raghav123"
+#define WIFI_AP_NAME        "rmxny"
+#define WIFI_PASSWORD       "marwan05"
 
 // Helper macro to calculate array size
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
@@ -65,13 +65,8 @@ RPC_Response set_pH(const RPC_Data &data) {
   // P SP 50 SP SP
   // String to_send = "P ";
   Serial.println("HI");
-  Serial.println(big);
-  Serial.println(small);
   char smth1 = (char) (big);
   char smth2 = (char) (small);
-  Serial.println(smth1);
-  Serial.println(smth2);
-
 
   Wire.beginTransmission(SLAVE_ADDR);
   Wire.write("T 257 ");
@@ -93,7 +88,7 @@ RPC_Response get_pH(const RPC_Data &data) {
 // RPC_Data is a JSON variant, that can be queried using operator[]
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
 RPC_Response set_Temp(const RPC_Data &data) {
-  Serial.print("set Temp: ");
+  Serial.print("Set Temp: ");
 
   // Process data
   updateDelay = data;
@@ -187,8 +182,6 @@ void reconnect() {
     Serial.println("Connected to AP");
   }
 }
-
-
 
 
 

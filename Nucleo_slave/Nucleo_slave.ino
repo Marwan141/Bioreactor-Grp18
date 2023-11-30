@@ -16,6 +16,7 @@ void setup() {
   Serial.begin(9600);
 }
 
+// val_pH/val_... needs to be sent to actuators
 void loop() {
 
   if (subsystem == "T") {
@@ -27,7 +28,7 @@ void loop() {
     two = (int) (current_string[3]) - 48;
     small = (int) (current_string[4]) - 48;
     
-    float val_temperature = (one * 10) + (two) + (small * 0.1);
+    float val_temperature = (one * 10) + (two) + (small * 0.1); //remind raghav
     Serial.println(val_temperature);
 
   } else if (subsystem == "P") {

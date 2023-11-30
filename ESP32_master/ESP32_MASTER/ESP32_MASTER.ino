@@ -1,10 +1,9 @@
 #include <Wire.h>
-#include <string.h>
 
-#define SLAVE_ADDR 9
+#define SLAVE_ADDR 12
+#define MASTER_ADDR 11
 #define I2C_SDA 21
 #define I2C_SCL 22
-#define MASTER_ADDR 10
 
 int my_delay = 1000;
 
@@ -15,8 +14,7 @@ void setup() {
 
 void loop() {
   
-  delay(my_delay);
-  Wire.requestFrom(SLAVE_ADDR, 6); // Request 18 bytes from slave
+  Wire.requestFrom(SLAVE_ADDR, 6); // Request 6 bytes from slave
   
   String receivedString = "";
   String subsystem;
@@ -86,5 +84,11 @@ void loop() {
   } else {
     Serial.println("OTHER");
   }
+
+  Wire.beginTransmission(SLAVE_ADDR);
+  Wire.write("hello!");
+  Wire.endTransmission();
+
+  delay(my_delay);
 
 }

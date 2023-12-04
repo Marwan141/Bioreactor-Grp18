@@ -9,8 +9,8 @@
 
 // WiFi
 //
-#define WIFI_AP_NAME        "rmxny"
-#define WIFI_PASSWORD       "marwan05"
+#define WIFI_AP_NAME        "Raghavs-iPhone"
+#define WIFI_PASSWORD       "Raghav123"
 
 // Helper macro to calculate array size
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
@@ -40,6 +40,7 @@ float val_temperature = temperature;
 float val_pH = pH;
 int val_RPM = RPM;
 
+String to_send = "A";
 
 // Processes function for RPC call "setValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
@@ -62,15 +63,14 @@ RPC_Response set_pH(const RPC_Data &data) {
   Serial.println(' ');
 
   pH = big + (small * 0.1);
-  // P SP 50 SP SP
-  // String to_send = "P ";
-  Serial.println("HI");
-  char smth1 = (char) (big);
-  char smth2 = (char) (small);
 
-  Wire.beginTransmission(SLAVE_ADDR);
-  Wire.write("T 257 ");
-  Wire.endTransmission();
+  // P SP 50 SP SP
+  to_send = "P ";
+  to_send += big;
+  to_send += small;
+  to_send += "  ";
+
+  Serial.println(to_send);
 
   return RPC_Response(NULL, updateDelay);
 }
@@ -106,6 +106,14 @@ RPC_Response set_Temp(const RPC_Data &data) {
 
   temperature = big + (small * 0.1);
 
+  // T SP 257 SP
+  to_send = "T ";
+  to_send += big;
+  to_send += small;
+  to_send += " ";
+
+  Serial.println(to_send);
+
   return RPC_Response(NULL, updateDelay);
 }
 
@@ -133,6 +141,12 @@ RPC_Response set_RPM(const RPC_Data &data) {
   Serial.print(updateDelay);
 
   Serial.println(' ');
+
+  // R SP 1125
+  to_send = "R ";
+  to_send += RPM;
+
+  Serial.println(to_send);
 
   return RPC_Response(NULL, updateDelay);
 }
@@ -229,7 +243,7 @@ void loop() {
 
   if (subsystem == "T") {
     
-    Serial.println("TEMPERATURE");
+    // Serial.println("TEMPERATURE");
     // T SP 257 SP
     int one, two, small;
     one = (int) (receivedString[2]) - 48;
@@ -237,11 +251,11 @@ void loop() {
     small = (int) (receivedString[4]) - 48;
     
     float val_temperature = (one * 10) + (two) + (small * 0.1);
-    Serial.println(val_temperature);
+    // Serial.println(val_temperature);
 
   } else if (subsystem == "P") {
     
-    Serial.println("PERCENTAGE HYDROGEN");
+    // Serial.println("PERCENTAGE HYDROGEN");
 
     // P SP 50 SP SP
     int big, small;
@@ -249,11 +263,11 @@ void loop() {
     small = (int) (receivedString[3]) - 48;
     
     float val_pH = (big) + (small * 0.1);
-    Serial.println(val_pH);
+    // Serial.println(val_pH);
 
   } else if (subsystem == "R") {
     
-    Serial.println("RPM");
+    // Serial.println("RPM");
 
     // R SP 1125
     int one, two, three, four;
@@ -263,7 +277,7 @@ void loop() {
     four = (int) (receivedString[5]) - 48;
     
     int val_RPM = (one * 1000) + (two * 100) + (three * 10) + (four);
-    Serial.println(val_RPM);
+    // Serial.println(val_RPM);
 
   } else {
     Serial.println("OTHER");
@@ -331,6 +345,17 @@ void loop() {
     tb.sendTelemetryInt("RPM", RPM);
     lastUpdate += updateDelay;
   }
+
+  if (to_send != "A") {
+    Wire.beginTransmission(SLAVE_ADDR);
+    for (int i = 0; i < 7; i++) {
+      Wire.write(to_send[i]);
+    }
+    // Wire.write("T 257 ");
+    Wire.endTransmission();
+  }
+
+  to_send = "A";
 
   // Process messages
   tb.loop();

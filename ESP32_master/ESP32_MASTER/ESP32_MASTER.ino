@@ -40,7 +40,7 @@ float val_temperature = temperature;
 float val_pH = pH;
 int val_RPM = RPM;
 
-String to_send = "A";
+String to_send = "ABCDEF";
 
 // Processes function for RPC call "setValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
@@ -346,7 +346,7 @@ void loop() {
     lastUpdate += updateDelay;
   }
 
-  if (to_send != "A") {
+  if (to_send != "ABCDEF") {
     Wire.beginTransmission(SLAVE_ADDR);
     for (int i = 0; i < 7; i++) {
       Wire.write(to_send[i]);
@@ -355,7 +355,7 @@ void loop() {
     Wire.endTransmission();
   }
 
-  to_send = "A";
+  to_send = "ABCDEF";
 
   // Process messages
   tb.loop();

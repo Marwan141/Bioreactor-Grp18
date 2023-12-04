@@ -24,12 +24,15 @@ void loop() {
     Serial.println("TEMPERATURE");
     // T SP 257 SP
     int one, two, small;
-    one = (int) (current_string[2]) - 48;
-    two = (int) (current_string[3]) - 48;
-    small = (int) (current_string[4]) - 48;
-    
+    one = (int) (current_string[2] - 48);
+    two = (int) (current_string[3] - 48);
+    small = (int) (current_string[4] - 48);
+
     float val_temperature = (one * 10) + (two) + (small * 0.1); //remind raghav
     Serial.println(val_temperature);
+
+    current_string = "";
+    subsystem = "";
 
   } else if (subsystem == "P") {
     
@@ -42,6 +45,9 @@ void loop() {
     
     float val_pH = (big) + (small * 0.1);
     Serial.println(val_pH);
+
+    current_string = "";
+    subsystem = "";
 
   } else if (subsystem == "R") {
     
@@ -56,6 +62,9 @@ void loop() {
     
     int val_RPM = (one * 1000) + (two * 100) + (three * 10) + (four);
     Serial.println(val_RPM);
+
+    current_string = "";
+    subsystem = "";
 
   } else {
     Serial.println("OTHER");
@@ -88,5 +97,8 @@ void receiveEvent(int howMany) {
     counter++;
 
   }
+
+  // Serial.println("HELLO");
+  Serial.println(current_string);
 
 }

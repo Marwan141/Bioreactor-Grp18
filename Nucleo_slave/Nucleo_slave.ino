@@ -8,12 +8,23 @@
 int my_delay = 1000;
 String current_string, subsystem;
 
+const int stirring_low_threshold = 200;
+const int stirring_high_threshold = 300;
+unsigned long stirring_pulse_count = 0;
+unsigned long stirring_start_time = 0;
+unsigned long stirring_period = 0;
+
+int stirring_RPM = 0;
+String to_send = "ABCDEF";
+
 void setup() {
   //Serial.begin(9600);
   Wire.begin(SLAVE_ADDR); // join I2C bus with slave address
   Wire.onRequest(requestEvent); // register event
   Wire.onReceive(receiveEvent);
   Serial.begin(9600);
+  pinMode(9, OUTPUT);
+  analogWrite(9, 255);
 }
 
 // val_pH/val_... needs to be sent to actuators
@@ -77,7 +88,62 @@ void loop() {
 void requestEvent() {
   // Wire.write("T 257 "); // respond with message
   // Wire.write("P 57  ");
-  Wire.write("R 1125");
+
+  
+
+
+  int stirring_sensor_val = analogRead(A0);
+
+  if (stirring_sensor_val > stirring_high_threshold && stirring_start_time == 0) {
+    stirring_start_time = micros();
+  }
+
+  if (stirring_sensor_val < stirring_low_threshold && stirring_start_time != 0) {
+    stirring_period = micros() - stirring_start_time;
+    stirring_pulse_count++;
+    stirring_start_time = 0; // Reset stirring_start_time for the next pulse
+  }
+
+  if (millis() % 1000 == 0) {
+    float stirring_freq = 1000000.0 / stirring_period;
+    float stirring_RPS = stirring_freq / 2.0;
+    float stirring_rad_per_min = 2 * PI * stirring_RPS * 60.0;
+
+    // Serial.print("stirring_freq: ");
+    // Serial.print(stirring_freq);
+    // Serial.print("Hz, RPS:");
+    // Serial.print(stirring_RPS);
+    // Serial.print(", Stirring Speed: ");
+    // Serial.print(stirring_rad_per_min);
+    // Serial.println(" rad/min");
+
+    stirring_RPM = (int) (stirring_RPS * 60);
+    to_send = "R ";
+
+    if (stirring_RPM <= 999) {
+      to_send += 0;
+    }
+    if (stirring_RPM <= 99) {
+      to_send += 0;
+    }
+    if (stirring_RPM <= 9) {
+      to_send += 0;
+    }
+
+    to_send += stirring_RPM;
+    Serial.println(to_send);
+
+    if (to_send != "ABCDEF") {
+      for (int i = 0; i < 7; i++) {
+        Wire.write(to_send[i]);
+      }
+    }
+
+    to_send = "ABCDEF";
+
+    stirring_pulse_count = 0;
+    stirring_period = 0; // Reset stirring_period for the next calculation
+  }
 }
 
 void receiveEvent(int howMany) {

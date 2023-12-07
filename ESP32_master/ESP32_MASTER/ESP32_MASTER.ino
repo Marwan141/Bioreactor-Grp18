@@ -42,6 +42,8 @@ int val_RPM = RPM;
 
 String to_send = "ABCDEF";
 
+long prev_time;
+
 // Processes function for RPC call "setValue"
 // RPC_Data is a JSON variant, that can be queried using operator[]
 // See https://arduinojson.org/v5/api/jsonvariant/subscript/ for more details
@@ -204,6 +206,7 @@ void setup() {
   Wire.begin(I2C_SDA, I2C_SCL);
   WiFi.begin(WIFI_AP_NAME, WIFI_PASSWORD);
   InitWiFi();
+  prev_time = millis();
 }
 
 void loop() {
@@ -241,46 +244,54 @@ void loop() {
   // Serial.print(receivedString);
   // Serial.println();
 
-  if (subsystem == "T") {
-    
-    // Serial.println("TEMPERATURE");
-    // T SP 257 SP
-    int one, two, small;
-    one = (int) (receivedString[2]) - 48;
-    two = (int) (receivedString[3]) - 48;
-    small = (int) (receivedString[4]) - 48;
-    
-    float val_temperature = (one * 10) + (two) + (small * 0.1);
-    // Serial.println(val_temperature);
+  if (millis() - prev_time >= 500) {
 
-  } else if (subsystem == "P") {
-    
-    // Serial.println("PERCENTAGE HYDROGEN");
+    if (subsystem == "T") {
 
-    // P SP 50 SP SP
-    int big, small;
-    big = (int) (receivedString[2]) - 48;
-    small = (int) (receivedString[3]) - 48;
-    
-    float val_pH = (big) + (small * 0.1);
-    // Serial.println(val_pH);
+      Serial.println("TEMPERATURE");
+      // T SP 257 SP
+      int one, two, small;
+      one = (int) (receivedString[2]) - 48;
+      two = (int) (receivedString[3]) - 48;
+      small = (int) (receivedString[4]) - 48;
+      
+      float val_temperature = (one * 10) + (two) + (small * 0.1);
+      Serial.println(val_temperature);
 
-  } else if (subsystem == "R") {
-    
-    // Serial.println("RPM");
+    } else if (subsystem == "P") {
+      
+      Serial.println("PERCENTAGE HYDROGEN");
 
-    // R SP 1125
-    int one, two, three, four;
-    one = (int) (receivedString[2]) - 48;
-    two = (int) (receivedString[3]) - 48;
-    three = (int) (receivedString[4]) - 48;
-    four = (int) (receivedString[5]) - 48;
-    
-    int val_RPM = (one * 1000) + (two * 100) + (three * 10) + (four);
-    // Serial.println(val_RPM);
+      // P SP 50 SP SP
+      int big, small;
+      big = (int) (receivedString[2]) - 48;
+      small = (int) (receivedString[3]) - 48;
+      
+      float val_pH = (big) + (small * 0.1);
+      Serial.println(val_pH);
 
-  } else {
-    Serial.println("OTHER");
+    } else if (subsystem == "R") {
+      
+      Serial.println("RPM");
+
+      // R SP 1125
+      int one, two, three, four;
+      one = (int) (receivedString[2]) - 48;
+      two = (int) (receivedString[3]) - 48;
+      three = (int) (receivedString[4]) - 48;
+      four = (int) (receivedString[5]) - 48;
+      
+      int val_RPM = (one * 1000) + (two * 100) + (three * 10) + (four);
+      Serial.println(val_RPM);
+
+      // delay(1000);
+
+    } else {
+      Serial.println("OTHER");
+    }
+
+    prev_time = millis();
+
   }
 
   // Reconnect to WiFi, if needed

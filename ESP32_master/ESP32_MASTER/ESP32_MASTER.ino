@@ -36,9 +36,9 @@ float temperature = 27.5;
 float pH = 5;
 int RPM = 750;
 
-float val_temperature = temperature;
-float val_pH = pH;
-int val_RPM = RPM;
+float val_temperature;
+float val_pH;
+int val_RPM;
 
 String to_send = "ABCDEF";
 
@@ -215,36 +215,38 @@ void loop() {
   
   delay(quant);
   
-  Wire.requestFrom(SLAVE_ADDR, 6); // Request 6 bytes from slave
-  
-  String receivedString = "";
-  String subsystem;
-  int counter = 0;
-  
-  while (Wire.available()) {
-    
-    char c = Wire.read(); // Read a character from the I2C buffer
-
-    if (counter == 0) {
-      subsystem = c;
-      // Serial.print("c: ");
-    }
-    // Serial.print(c);      // Print the received character to Serial Monitor
-    
-    receivedString += c;
-    counter++;
-
-  }
-
-  // Serial.println(); // Add a new line for better readability
-  // Serial.print("subsystem: ");
-  // Serial.print(subsystem);
-  // Serial.println();
-  // Serial.print("recieved str: ");
-  // Serial.print(receivedString);
-  // Serial.println();
-
   if (millis() - prev_time >= 500) {
+
+    // Serial.println("BEFORE REQUEST");
+    Wire.requestFrom(SLAVE_ADDR, 6); // Request 6 bytes from slave
+    // Serial.println("AFTER REQUEST");
+    
+    String receivedString = "";
+    String subsystem;
+    int counter = 0;
+    
+    while (Wire.available()) {
+      
+      char c = Wire.read(); // Read a character from the I2C buffer
+
+      if (counter == 0) {
+        subsystem = c;
+        // Serial.print("c: ");
+      }
+      // Serial.print(c);      // Print the received character to Serial Monitor
+      
+      receivedString += c;
+      counter++;
+
+    }
+
+    // Serial.println(); // Add a new line for better readability
+    // Serial.print("subsystem: ");
+    // Serial.print(subsystem);
+    // Serial.println();
+    // Serial.print("recieved str: ");
+    // Serial.print(receivedString);
+    // Serial.println();
 
     if (subsystem == "T") {
 
@@ -258,6 +260,8 @@ void loop() {
       float val_temperature = (one * 10) + (two) + (small * 0.1);
       Serial.println(val_temperature);
 
+      tb.sendTelemetryFloat("temperature", val_temperature);
+
     } else if (subsystem == "P") {
       
       Serial.println("PERCENTAGE HYDROGEN");
@@ -269,6 +273,8 @@ void loop() {
       
       float val_pH = (big) + (small * 0.1);
       Serial.println(val_pH);
+
+      tb.sendTelemetryFloat("pH", val_pH);
 
     } else if (subsystem == "R") {
       
@@ -284,10 +290,12 @@ void loop() {
       int val_RPM = (one * 1000) + (two * 100) + (three * 10) + (four);
       Serial.println(val_RPM);
 
+      tb.sendTelemetryInt("RPM", val_RPM);
+
       // delay(1000);
 
     } else {
-      Serial.println("OTHER");
+      // Serial.println("OTHER");
     }
 
     prev_time = millis();
@@ -330,7 +338,7 @@ void loop() {
     subscribed = true;
   }
 
-  if (now > lastUpdate + updateDelay) {
+  // if (now > lastUpdate + updateDelay) {
     // r = (float)random(1000)/1000.0;
     // loopCounter++;
 
@@ -348,14 +356,11 @@ void loop() {
     // for more details
     // tb.sendTelemetryInt("count", loopCounter);    
     // tb.sendTelemetryFloat("randomVal", r);
-    temperature = val_temperature;
-    pH = val_pH;
-    RPM = val_RPM;
-    tb.sendTelemetryFloat("temperature", temperature);
-    tb.sendTelemetryFloat("pH", pH);
-    tb.sendTelemetryInt("RPM", RPM);
-    lastUpdate += updateDelay;
-  }
+    // tb.sendTelemetryFloat("temperature", val_temperature);
+  //   tb.sendTelemetryFloat("pH", val_pH);
+  //   tb.sendTelemetryInt("RPM", val_RPM);
+  //   lastUpdate += updateDelay;
+  // }
 
   if (to_send != "ABCDEF") {
     Wire.beginTransmission(SLAVE_ADDR);

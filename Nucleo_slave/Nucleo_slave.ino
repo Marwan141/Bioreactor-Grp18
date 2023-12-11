@@ -5,6 +5,8 @@
 // #define I2C_SDA smth
 // #define I2C_SCL smth
 
+
+
 int my_delay = 1000;
 String current_string, subsystem;
 #define SensorPin A3        // pH meter Analog output to Arduino Analog Input 0
@@ -16,6 +18,25 @@ String current_string, subsystem;
 #define pumpRunTime 1000    // Time to run the pump (in milliseconds)
 #define mixDelay 5000       // Time to wait after running the pump (in milliseconds)
 
+const float Kv=800;
+const float Too=0.25;
+
+const float wn=4;
+const float zeta=1;
+int val_RPM;
+// Calculate the required PI controller parameters
+const float wo=1/Too;
+// corresponding motor response frequency in rad/s
+const float Kp=(2*zeta*wn/wo-1)/Kv;
+const float KI=wn*wn/Kv/wo;
+//And finally we need to declare the remaining constants and variables:
+const byte encoderpin=A0, motorpin=D10;
+float setspeed; // Desired (set) motor speed
+long currtime, prevtime, pulseT, prevpulseT, prevprevpulseT, T1, T2;
+float measspeed, meanmeasspeed, freq, error, KIinterror, deltaT;
+bool ctrl;
+int Vmotor, onoff;
+
 //pH Subsystem
 int pHArray[ArrayLenth];    // Array to store pH sensor readings
 int pHArrayIndex = 0;
@@ -25,7 +46,6 @@ bool isPumpRunning = false;
 float pHValue = 0;
 //Temp subSystem
 const byte thermistorPin = A1, heaterPin = D7;
-const byte tempReadPin = A0;
 const float g = 0.0909, c = -22.2682;
 float T, Tset, Taim, analogTempReading;
 //Stirring Subsystem
@@ -40,8 +60,6 @@ int pwmValue = 120; // PWM value for stirring speed control
 
 
 
-int stirring_RPM = 0;
-String to_send = "ABCDEF";
 
 void setup() {
   //Serial.begin(9600);
@@ -49,18 +67,43 @@ void setup() {
   Wire.onRequest(requestEvent); // register event
   Wire.onReceive(receiveEvent);
   pinMode(thermistorPin, INPUT);
-  pinMode(tempReadPin, INPUT);
   pinMode(heaterPin, OUTPUT);
   pinMode(PUMP1_PIN, OUTPUT);
   pinMode(PUMP2_PIN, OUTPUT);
   digitalWrite(PUMP1_PIN, LOW);  // Ensure Pump 1 is off
   digitalWrite(PUMP2_PIN, LOW);  // Ensure Pump 2 is off
   Serial.begin(9600);
-  pinMode(10, OUTPUT);
-  analogWrite(10, pwmValue); // Set initial PWM value
+
+    // put your setup code here, to run once:
+   pinMode(encoderpin, INPUT);
+  // One of the interrupt pins (D2/D3 on an Uno/Nano)
+   pinMode(motorpin, OUTPUT);
+  // Motor PWM control signal, to MOSFET
+  // ! connected to button, get ride and change setspeed to be based off inp from esp32
+  // Attach push-switch to ground, to cycle speeds
+   attachInterrupt(digitalPinToInterrupt(encoderpin), freqcount, CHANGE);
+   analogWriteResolution(10); // 10-bit PWM -TCCR1A = 0b00000011; for Uno/Nano
+   analogWriteFrequency(8000); //8 kHz PWM -TCCR1B = 0b00000001; for Uno/Nano
+  analogWrite(motorpin, 0);
   Serial.println("Initialising system...");
+  //delay(10000); TRY WITH AND WITHOUT???????
 
 }
+void freqcount() {
+  pulseT= micros();
+  if(pulseT-prevpulseT>6000){
+    // Attempt to mitigate sensor false triggers due to PWM current spikes, apparent speeds > 2500 RPM
+    freq= 1e6/float(pulseT-prevprevpulseT);
+    }
+  // Calculate speed sensor frequency
+  prevprevpulseT= prevpulseT;
+  prevpulseT= pulseT;
+ }
+
+
+
+int stirring_RPM = 0;
+String to_send = "ABCDEF";
 
 // val_pH/val_... needs to be sent to actuators
 
@@ -108,7 +151,7 @@ void loop() {
     three = (int) (current_string[4]) - 48;
     four = (int) (current_string[5]) - 48;
     
-    int val_RPM = (one * 1000) + (two * 100) + (three * 10) + (four);
+    val_RPM = (one * 1000) + (two * 100) + (three * 10) + (four);
     Serial.println(val_RPM);
 
     current_string = "";
@@ -141,26 +184,28 @@ float adjustTemp(float analogReading) {
 
 int adjustStirring(int stirringValue){
 
-   if (stirringValue > stirring_high_threshold && stirring_start_time == 0) {
-    stirring_start_time = micros();
-  }
-
-  if (stirringValue < stirring_low_threshold && stirring_start_time != 0) {
-    stirring_period = micros() - stirring_start_time;
-    stirring_pulse_count++;
-    stirring_start_time = 0; // Reset stirring_start_time for the next pulse
-  }
-
-  if (millis() % 1000 == 0) {
-    float frequency = 1000000.0 / stirring_period;
-    float rps = frequency / 2.0;
-    float radPerMin = 2 * PI * rps * 60.0;
-    stirring_pulse_count = 0;
-    stirring_period = 0; 
-    stirring_RPM = (int) (rps * 60);
-   
-  }
-  return stirring_RPM;
+   // put your main code here, to run repeatedly:
+  currtime = micros();
+  deltaT = (currtime-prevtime)*1e-6;
+  if(ctrl==1 && currtime-T2>1000000) {ctrl=0;}
+  if (ctrl==0 && digitalRead(A2) == 0) {onoff++; ctrl=1; T2=currtime; setspeed=val_RPM/10;} // ! Based off ESP input1!!!
+  if (currtime-T1 > 0) {
+    prevtime = currtime;
+    T1 = T1+10000;
+    measspeed = freq*30;
+    if (currtime-pulseT>5e5) {measspeed=0; meanmeasspeed=0;}
+    error = setspeed-measspeed;
+    KIinterror = KIinterror+KI*error*deltaT;
+    KIinterror = constrain(KIinterror,0,3);
+    Vmotor = round(204*(Kp*error+KIinterror));
+    Vmotor = constrain(Vmotor, 0, 1500); // constrain to 600
+    Serial.print("Vmotor: "); Serial.println(Vmotor);
+    analogWrite(motorpin, Vmotor);
+    meanmeasspeed = 0.1*measspeed+0.9*meanmeasspeed;
+    //Serial.print(0); Serial.print(","); Serial.print(1500); Serial.print(",");
+    Serial.print("meanmeasspeed: "); Serial.println(meanmeasspeed);
+    return meanmeasspeed;
+}
 }
 
 void requestEvent() {
@@ -195,12 +240,7 @@ void requestEvent() {
   if (stirring_RPM >= 10000) {
     stirring_RPM = (int)stirring_RPM / 10;
   }
-  // Use sprintf to format the RPM value into the to_send string
- 
 
-
-  // Use sprintf to format the RPM value into the to_send string
- 
   if (stirring_RPM >= 1000) {
       to_send += stirring_RPM;
       if (to_send != "ABCDEF") {
@@ -290,7 +330,6 @@ void pHControl() {
   // Calculate average pH value
   if (!isPumpRunning) {
     float voltage = calculateAverage(pHArray, ArrayLenth) * 5.0 / 1024.0;
-    Serial.println(voltage);
     pHValue = 2.1 * voltage + 1.2;  // Calibrated pH calculation
 
     // Adjust pH if needed
